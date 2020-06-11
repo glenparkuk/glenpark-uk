@@ -16,6 +16,8 @@
         <!-- TODO: make testimonials conform standard structure of all other pages -->
         {%- if page.id == 'testimonials' -%}
           <div class="testimonials-wrapper">
+        {%- else if if page.id == 'contact' -%}
+        <div class="wrapper wrapper--responsive">
         {%- else -%}
           <div class="wrapper">
         {%- endif -%}
