@@ -27,7 +27,7 @@
       {%- include mailchimp-signup.html -%}
     {%- endif -%}
 
-    {%- include footer.html -%}
+    {%- comment -%}{%- include footer.html -%}{%- endcomment -%}
 
     {%- if page.id == 'books' -%}
       {% include initialize-cart.html %}
