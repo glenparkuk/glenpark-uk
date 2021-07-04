@@ -64,7 +64,7 @@ navigation_header:
       - label: Peggy Williams Pamphlet
         id: peggywilliams
       - label: Chakra Healing Therapy
-        id: touchingthesoul
+        id: chakrahealingtherapy
  - label: Testimonials
    id: testimonials
    sub_menu:
