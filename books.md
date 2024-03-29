@@ -63,14 +63,16 @@ header_slider:
                                     </td>
                                     <td class="totals-column" id="totalAOCPaperback">£0.00</td>
                                 </tr>
-                                <tr class="item">
+                                <!-- left in but commented out while jscart script includes product ids -->
+                                <!-- TODO either make product cart items use generic id or remove product logic from jscart script -->
+                                <!-- <tr class="item">
                                     <td>The Art of Changing - Audio CD</td>
                                     <td class="price-column">£10.00</td>
                                     <td class="quantity-column">
                                         <input type="number" min="0" value="0" placeholder="0" max="10" name="quantity-aoc-paperback" id="quantityAOCAudioCD" required />
                                     </td>
                                     <td class="totals-column" id="totalAOCAudioCD">£0.00</td>
-                                </tr>
+                                </tr> -->
                                 <tr class="item">
                                     <td>Peggy Williams Pamphlet</td>
                                     <td class="price-column">£2.50</td>
