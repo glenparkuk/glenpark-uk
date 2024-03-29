@@ -19,11 +19,11 @@ author: Glen Park
 imprint: Ashgrove Publishing
 isbn: 1-85398-130-3
 publication_date: 2005
-price: "10.00"
-display_buy_now_button: true
-buy_now_id: buynowAOCAudioCD
-note: 
-  <p>If you are an Alexander Teacher and would like to buy 6+ copies for your pupils please <a href="mailto:contact@glenpark.uk" target="_blank" alt="Contact Glen Park">contact Glen Park</a> for a discount.</p>
+# price: "10.00"
+# display_buy_now_button: true
+# buy_now_id: buynowAOCAudioCD
+note:
+  <p class="product-note-warning">This CD has sold out and is no longer available. However, the audio tracks from the CD are available to download from the following retailers.</p>
 align: left
 retailers: 
   - id: audible 

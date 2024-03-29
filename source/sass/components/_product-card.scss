@@ -62,6 +62,13 @@
         }
     }
 
+    &__note {
+        .product-note-warning {
+            font-size: 15px;
+            font-weight: bold;
+        }
+    }
+
     &--right {
         flex-direction: row-reverse;
 
