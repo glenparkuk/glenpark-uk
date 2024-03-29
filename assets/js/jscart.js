@@ -6,16 +6,43 @@ function Cart(items) {
     this.total = 0;
     this.paypalActions = null;
     this.largeLetterPrices = {
-        'region1': 2.52,
-        'region2': 3.80,
-        'region3': 4.75,
-        'region4': 5.05
+        region1: 2.52,
+        region2: 3.8,
+        region3: 4.75,
+        region4: 5.05
     };
     this.smallParcelWeightMatrix = {
-        'region1': { '1000': 3.50, '2000': 5.50 },
-        'region2': { '250': 4.10, '500': 5.80, '750': 7.20, '1000': 8.60, '1250': 9.85, '1500': 11.10, '1750': 12.30, '2000': 13.45 },
-        'region3': { '250': 5.15, '500': 8.05, '750': 10.70, '1000': 13.30, '1250': 14.90, '1500': 16.50, '1750': 18.10, '2000': 19.65 },
-        'region4': { '250': 5.60, '500': 8.70, '750': 11.40, '1000': 14.05, '1250': 15.85, '1500': 17.75, '1750': 19.60, '2000': 21.40 }
+        region1: { "1000": 3.5, "2000": 5.5 },
+        region2: {
+            "250": 4.1,
+            "500": 5.8,
+            "750": 7.2,
+            "1000": 8.6,
+            "1250": 9.85,
+            "1500": 11.1,
+            "1750": 12.3,
+            "2000": 13.45
+        },
+        region3: {
+            "250": 5.15,
+            "500": 8.05,
+            "750": 10.7,
+            "1000": 13.3,
+            "1250": 14.9,
+            "1500": 16.5,
+            "1750": 18.1,
+            "2000": 19.65
+        },
+        region4: {
+            "250": 5.6,
+            "500": 8.7,
+            "750": 11.4,
+            "1000": 14.05,
+            "1250": 15.85,
+            "1500": 17.75,
+            "1750": 19.6,
+            "2000": 21.4
+        }
     };
     /* Initialization */
     // init
@@ -70,25 +97,33 @@ function Cart(items) {
         return false;
     };
     this.updateShippingTotal = function () {
-        if (this.shippingRegion == 1 || this.shippingRegion == 2 || this.shippingRegion == 3 || this.shippingRegion == 4) {
-            var AOCPaperback = this.getItem('AOCPaperback');
-            var AOCAudioCD = this.getItem('AOCAudioCD');
-            var PWPamphlet = this.getItem('PWPamphlet');
-            if (AOCAudioCD.quantity < 1 && AOCPaperback.quantity < 1 && PWPamphlet.quantity < 1) {
+        if (this.shippingRegion == 1 ||
+            this.shippingRegion == 2 ||
+            this.shippingRegion == 3 ||
+            this.shippingRegion == 4) {
+            var AOCPaperback = this.getItem("AOCPaperback");
+            var AOCAudioCD = this.getItem("AOCAudioCD");
+            var PWPamphlet = this.getItem("PWPamphlet");
+            if (AOCAudioCD.quantity < 1 &&
+                AOCPaperback.quantity < 1 &&
+                PWPamphlet.quantity < 1) {
                 // Sanity check
                 this.shippingTotal = 0;
             }
-            else if (AOCAudioCD.quantity < 2 && AOCPaperback.quantity == 0 && PWPamphlet.quantity < 6) {
+            else if (AOCAudioCD.quantity < 2 &&
+                AOCPaperback.quantity == 0 &&
+                PWPamphlet.quantity < 6) {
                 // Custom: if only 1 CD user large letter prices
-                var shippingTotal = this.largeLetterPrices['region' + this.shippingRegion];
+                var shippingTotal = this.largeLetterPrices["region" + this.shippingRegion];
                 this.shippingTotal = shippingTotal;
             }
             else {
                 // Find small parcel weight
                 var totalWeight = this.updateTotalWeight();
-                var weightBrackets = this.smallParcelWeights['region' + this.shippingRegion];
+                var weightBrackets = this.smallParcelWeights["region" + this.shippingRegion];
                 var weightBracket = this.getWeightBracket(totalWeight, weightBrackets);
-                this.shippingTotal = this.smallParcelWeightMatrix['region' + this.shippingRegion][weightBracket];
+                this.shippingTotal =
+                    this.smallParcelWeightMatrix["region" + this.shippingRegion][weightBracket];
             }
         }
         else {
@@ -153,14 +188,17 @@ function Cart(items) {
         }
     };
     this.addQuantityEventListener = function (itemId) {
-        var el = document.getElementById('quantity' + itemId);
-        el.addEventListener('change', function (e) {
+        var el = document.getElementById("quantity" + itemId);
+        if (!el) {
+            return;
+        }
+        el.addEventListener("change", function (e) {
             this.quantityEventListenerFnc(e);
         }.bind(this), false);
     };
     this.quantityEventListenerFnc = function (e) {
         var el = e.target;
-        var itemId = el.id.replace('quantity', ''); // TODO: improve this with data targets in HTML
+        var itemId = el.id.replace("quantity", ""); // TODO: improve this with data targets in HTML
         var quantity = parseInt(el.value) || 0;
         var item = this.getItem(itemId);
         item.quantity = quantity;
@@ -171,30 +209,30 @@ function Cart(items) {
     };
     // add event listeners to individual product buy now buttons
     this.addBuynowEventListener = function (itemId) {
-        var el = document.getElementById('buynow' + itemId);
+        var el = document.getElementById("buynow" + itemId);
         if (el) {
-            el.addEventListener('click', function (e) {
+            el.addEventListener("click", function (e) {
                 var itemId = e.target.id;
                 this.sendBuyNowButtonOnClickEvent(itemId);
                 //
                 // Disabled because events aren't firing from programmatic updates to inputs
                 //
                 /*
-                let el = e.target;
-                let itemId:string = el.id.replace('buynow', ''); // TODO: improve this with data targets in HTML
-                let item = this.getItem(itemId);
-                item.quantity++;
-
-                let quantityEl:HTMLInputElement = (<HTMLInputElement>document.getElementById('quantity' + item.id));
-                if(quantityEl) {
-                    quantityEl.value = item.quantity;
-                } else {
-                    console.log('Error: Item total element not found.')
-                }
-
-                //let cartOffset:number = document.getElementById('buyNow').offsetTop;
-                //console.log(cartOffset);
-                */
+                      let el = e.target;
+                      let itemId:string = el.id.replace('buynow', ''); // TODO: improve this with data targets in HTML
+                      let item = this.getItem(itemId);
+                      item.quantity++;
+      
+                      let quantityEl:HTMLInputElement = (<HTMLInputElement>document.getElementById('quantity' + item.id));
+                      if(quantityEl) {
+                          quantityEl.value = item.quantity;
+                      } else {
+                          console.log('Error: Item total element not found.')
+                      }
+      
+                      //let cartOffset:number = document.getElementById('buyNow').offsetTop;
+                      //console.log(cartOffset);
+                      */
                 //window.scrollTo(0, 2650);
                 //this.isCartValid() ? this.enablePaypalButton() : this.disablePaypalButton();
             }.bind(this), false);
@@ -202,17 +240,22 @@ function Cart(items) {
     };
     // add event listener to shipping radio buttons
     this.addShippingEventListener = function () {
-        var el = document.getElementById('shippingOptions');
-        var shippingArr = el.getElementsByTagName('input');
+        var el = document.getElementById("shippingOptions");
+        if (!el) {
+            return;
+        }
+        var shippingArr = el.getElementsByTagName("input");
         for (var i = 0; i < shippingArr.length; i++) {
-            shippingArr[i].addEventListener('change', function (e) {
+            shippingArr[i].addEventListener("change", function (e) {
                 var el = e.target;
                 var shippingRegion = parseInt(el.value);
                 if (this.shippingRegion !== shippingRegion) {
                     this.shippingRegion = shippingRegion;
                     this.updateDOMShipping();
                     this.updateDOMTotal();
-                    this.isCartValid() ? this.enablePaypalButton() : this.disablePaypalButton();
+                    this.isCartValid()
+                        ? this.enablePaypalButton()
+                        : this.disablePaypalButton();
                 }
             }.bind(this), false);
         }
@@ -224,36 +267,39 @@ function Cart(items) {
             var price = item.price;
             var quantity = item.quantity;
             var total = this.getItemTotal(price, quantity);
-            item.total = this.checkNaN(item.id + 'Total', total);
+            item.total = this.checkNaN(item.id + "Total", total);
             // update total
-            var el = document.getElementById('total' + item.id);
+            var el = document.getElementById("total" + item.id);
             if (el) {
-                el.innerHTML = '£' + item.total.toFixed(2);
+                el.innerHTML = "£" + item.total.toFixed(2);
             }
             else {
-                console.log('Error: Item total element not found.');
+                console.log("Error: Item total element not found.");
             }
         }
         this.updateTotalWeight(); // TODO: I don't think this is necessary and can be removed
         var subtotal = this.updateSubtotal();
-        subtotal = this.checkNaN('subtotal', subtotal);
-        var subtotalEl = document.getElementById('totalSubTotal');
-        subtotalEl.innerHTML = '£' + subtotal.toFixed(2);
+        subtotal = this.checkNaN("subtotal", subtotal);
+        var subtotalEl = document.getElementById("totalSubTotal");
+        if (!subtotalEl) {
+            return;
+        }
+        subtotalEl.innerHTML = "£" + subtotal.toFixed(2);
     };
     this.updateDOMShipping = function (shippingRegion) {
         var shippingTotal = this.updateShippingTotal();
-        shippingTotal = this.checkNaN('shippingTotal', shippingTotal);
-        var shippingTotalEl = document.getElementById('totalShippingTotal');
+        shippingTotal = this.checkNaN("shippingTotal", shippingTotal);
+        var shippingTotalEl = document.getElementById("totalShippingTotal");
         if (shippingTotalEl) {
-            shippingTotalEl.innerHTML = '£' + shippingTotal.toFixed(2);
+            shippingTotalEl.innerHTML = "£" + shippingTotal.toFixed(2);
         }
     };
     this.updateDOMTotal = function () {
         var total = this.updateTotal();
-        total = this.checkNaN('total', total);
-        var totalTotalEl = document.getElementById('totalTotal');
+        total = this.checkNaN("total", total);
+        var totalTotalEl = document.getElementById("totalTotal");
         if (totalTotalEl) {
-            totalTotalEl.innerHTML = '£' + total.toFixed(2);
+            totalTotalEl.innerHTML = "£" + total.toFixed(2);
         }
     };
     this.getItemTotal = function (price, quantity) {
@@ -267,8 +313,9 @@ function Cart(items) {
             for (var weightProperty in weightMatrix[regionProperty]) {
                 weightArray.push(parseInt(weightProperty));
             }
-            weightArrays[regionProperty] = weightArray.sort(function (a, b) { return a - b; });
-            ;
+            weightArrays[regionProperty] = weightArray.sort(function (a, b) {
+                return a - b;
+            });
         }
         return weightArrays;
     };
@@ -280,32 +327,32 @@ function Cart(items) {
         var total = this.isTotalValid();
         if (!itemsQuantity) {
             if (subtotal) {
-                this.sendIsCartValidErrorEvent('itemsQuantity');
+                this.sendIsCartValidErrorEvent("itemsQuantity");
             }
             return false;
         }
         if (!subtotal) {
             if (itemsQuantity) {
-                this.sendIsCartValidErrorEvent('subtotal');
+                this.sendIsCartValidErrorEvent("subtotal");
             }
             return false;
         }
         if (!shippingRegion) {
             // following check is very unlikely
             if (shippingTotal && itemsQuantity && subtotal) {
-                this.sendIsCartValidErrorEvent('shippingRegion');
+                this.sendIsCartValidErrorEvent("shippingRegion");
             }
             return false;
         }
         if (!shippingTotal) {
             if (shippingRegion && itemsQuantity && subtotal) {
-                this.sendIsCartValidErrorEvent('shippingTotal');
+                this.sendIsCartValidErrorEvent("shippingTotal");
             }
             return false;
         }
         if (!total) {
             if (itemsQuantity && subtotal && shippingRegion && shippingTotal) {
-                this.sendIsCartValidErrorEvent('total');
+                this.sendIsCartValidErrorEvent("total");
             }
             return false;
         }
@@ -339,7 +386,10 @@ function Cart(items) {
         return true;
     };
     this.isShippingRegionValid = function () {
-        if (this.shippingRegion != 1 && this.shippingRegion != 2 && this.shippingRegion != 3 && this.shippingRegion != 4) {
+        if (this.shippingRegion != 1 &&
+            this.shippingRegion != 2 &&
+            this.shippingRegion != 3 &&
+            this.shippingRegion != 4) {
             console.log("Please select a shipping country");
             return false;
         }
@@ -360,74 +410,89 @@ function Cart(items) {
         return number;
     };
     this.sendNanErrorEvent = function (variableName) {
-        if (typeof (ga) == 'undefined') {
+        if (typeof ga == "undefined") {
             return;
         }
         var gaObject = {
-            'eventCategory': 'jsCart: NaN Error',
-            'eventAction': 'Update ' + variableName
+            eventCategory: "jsCart: NaN Error",
+            eventAction: "Update " + variableName
         };
         //console.log(gaObject)
-        ga('send', 'event', gaObject);
+        ga("send", "event", gaObject);
     };
     this.sendIsCartValidErrorEvent = function (variableName) {
-        if (typeof (ga) == 'undefined') {
+        if (typeof ga == "undefined") {
             return;
         }
         var gaObject = {
-            'eventCategory': 'jsCart: isCartValid Error',
-            'eventAction': 'Unexpected validity checking ' + variableName + ' dependencies'
+            eventCategory: "jsCart: isCartValid Error",
+            eventAction: "Unexpected validity checking " + variableName + " dependencies"
         };
         //console.log(gaObject)
-        ga('send', 'event', gaObject);
+        ga("send", "event", gaObject);
     };
     this.sendBuyNowButtonOnClickEvent = function (variableName) {
-        if (typeof (ga) == 'undefined') {
+        if (typeof ga == "undefined") {
             return;
         }
         var gaObject = {
-            'eventCategory': 'jsCart: Buy Now onClick event',
-            'eventAction': variableName + ' Buy Now button onClick'
+            eventCategory: "jsCart: Buy Now onClick event",
+            eventAction: variableName + " Buy Now button onClick"
         };
         //console.log(gaObject)
-        ga('send', 'event', gaObject);
+        ga("send", "event", gaObject);
     };
     this.setupValidation = function (paypalActions) {
         this.paypalActions = paypalActions;
         this.disablePaypalButton();
     };
     this.toggleValidationMessages = function () {
-        var cartItemsInvalid = document.getElementById('cartItemsInvalid'), shippingTotalInvalid = document.getElementById('shippingTotalInvalid'), cartTotalInvalid = document.getElementById('cartTotalInvalid'), shippingCartErrorActive = cartItemsInvalid.classList.contains('show-error'), shippingTotalErrorActive = shippingTotalInvalid.classList.contains('show-error'), cartTotalErrorActive = cartTotalInvalid.classList.contains('show-error'), itemsQuantity = this.isItemsQuantityValid(), subtotal = this.isSubtotalValid(), shippingTotal = this.isShippingTotalValid(), shippingRegion = this.isShippingRegionValid(), total = this.isTotalValid();
+        var cartItemsInvalid = document.getElementById("cartItemsInvalid"), shippingTotalInvalid = document.getElementById("shippingTotalInvalid"), cartTotalInvalid = document.getElementById("cartTotalInvalid");
+        var shippingCartErrorActive = cartItemsInvalid && cartItemsInvalid.classList.contains("show-error");
+        var shippingTotalErrorActive = shippingTotalInvalid &&
+            shippingTotalInvalid.classList.contains("show-error");
+        var cartTotalErrorActive = cartTotalInvalid && cartTotalInvalid.classList.contains("show-error");
+        var itemsQuantity = this.isItemsQuantityValid(), subtotal = this.isSubtotalValid(), shippingTotal = this.isShippingTotalValid(), shippingRegion = this.isShippingRegionValid(), total = this.isTotalValid();
         if (this.isCartValid()) {
-            cartItemsInvalid.classList.remove("show-error");
-            shippingTotalInvalid.classList.remove("show-error");
-            cartTotalInvalid.classList.remove("show-error");
+            cartItemsInvalid && cartItemsInvalid.classList.remove("show-error");
+            shippingTotalInvalid &&
+                shippingTotalInvalid.classList.remove("show-error");
+            cartTotalInvalid && cartTotalInvalid.classList.remove("show-error");
             this.enablePaypalButton();
         }
         else {
             if (!itemsQuantity || !subtotal) {
-                if (!shippingCartErrorActive) {
+                if (!shippingCartErrorActive && cartItemsInvalid) {
                     cartItemsInvalid.classList.add("show-error");
                 }
             }
-            else if (shippingCartErrorActive) {
+            else if (shippingCartErrorActive && cartItemsInvalid) {
                 cartItemsInvalid.classList.remove("show-error");
             }
             if (!shippingTotal || !shippingRegion) {
-                if (!shippingTotalErrorActive) {
+                if (!shippingTotalErrorActive && shippingTotalInvalid) {
                     shippingTotalInvalid.classList.add("show-error");
                 }
             }
-            else if (shippingTotalErrorActive) {
+            else if (shippingTotalErrorActive && shippingTotalInvalid) {
                 shippingTotalInvalid.classList.remove("show-error");
             }
-            if (itemsQuantity && subtotal && shippingTotal && shippingRegion && !this.isTotalValid()) {
+            if (itemsQuantity &&
+                subtotal &&
+                shippingTotal &&
+                shippingRegion &&
+                !this.isTotalValid() &&
+                cartTotalInvalid) {
                 cartTotalInvalid.classList.add("show-error");
             }
         }
     };
     this.enablePaypalButton = function () {
-        var paypalButtom = document.getElementById('paynowButton'), paypalButtonInactive = paypalButtom.classList.contains('disabled');
+        var paypalButtom = document.getElementById("paynowButton");
+        if (!paypalButtom) {
+            return;
+        }
+        var paypalButtonInactive = paypalButtom.classList.contains("disabled");
         this.paypalActions.enable();
         // TODO: Setup Function to remove error messages on event handlers
         // let cartItemsInvalid = document.getElementById('cartItemsInvalid'),
@@ -444,18 +509,24 @@ function Cart(items) {
         }
     };
     this.disablePaypalButton = function () {
-        var paypalButtom = document.getElementById('paynowButton'), paypalButtonInactive = paypalButtom.classList.contains('disabled');
+        var paypalButtom = document.getElementById("paynowButton");
+        if (!paypalButtom) {
+            return;
+        }
+        var paypalButtonInactive = paypalButtom.classList.contains("disabled");
         this.paypalActions.disable();
         if (!paypalButtonInactive) {
             paypalButtom.classList.add("disabled");
         }
     };
     this.paymentSuccessful = function () {
-        var el = document.getElementById('paymentSuccessful');
+        var el = document.getElementById("paymentSuccessful");
+        if (!el) {
+            return;
+        }
         el.classList.remove("disabled");
     };
 }
-;
 /*
 let i1 = { id:'AOCPaperback', price: 12.5 };
 let i2 = { id: 'AOCAudioCD', price: 10 };
