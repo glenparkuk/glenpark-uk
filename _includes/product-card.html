@@ -68,7 +68,9 @@
             {%- endif -%}
 
             {% if product.note %}
-                {{ product.note }}
+                <div class="product-card__note">
+                    {{ product.note }}
+                </div>
             {%- endif -%}
 
         </div>
