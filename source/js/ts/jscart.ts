@@ -183,7 +183,7 @@ function Cart(items: Array<CartItemInput>): void {
 		this.total = 0;
 	}
 
-	this.getItem = function(itemId:string):CartItem {
+	this.getItem = function(itemId:string):CartItem | undefined {
 		for(let i:number = 0; i < this.items.length; i++) {
 			if (this.items[i].id === itemId) {
 				return this.items[i];
@@ -192,7 +192,12 @@ function Cart(items: Array<CartItemInput>): void {
 	}
 
 	this.addQuantityEventListener = function(itemId: string) {
-		let el:HTMLElement = document.getElementById('quantity' + itemId);
+		let el: HTMLElement | null = document.getElementById('quantity' + itemId);
+
+		if (!el) {
+			return
+		}
+
 		el.addEventListener('change', function(e: any): void {
 			this.quantityEventListenerFnc(e);
 		}.bind(this), false );
@@ -212,7 +217,7 @@ function Cart(items: Array<CartItemInput>): void {
 
 	// add event listeners to individual product buy now buttons
 	this.addBuynowEventListener = function(itemId: string):void {
-		let el:HTMLElement = document.getElementById('buynow' + itemId);
+		let el:HTMLElement | null = document.getElementById('buynow' + itemId);
 		if(el) {
 			el.addEventListener('click', function(e: any): void {
 				let itemId:string = e.target.id;
@@ -244,7 +249,12 @@ function Cart(items: Array<CartItemInput>): void {
 
 	// add event listener to shipping radio buttons
 	this.addShippingEventListener = function() {
-		let el:HTMLElement = document.getElementById('shippingOptions');
+		let el: HTMLElement | null = document.getElementById('shippingOptions');
+
+		if (!el) {
+			return
+		}
+
 		let shippingArr = el.getElementsByTagName('input');
 
 		for(let i:number = 0; i < shippingArr.length; i++) {
@@ -282,14 +292,20 @@ function Cart(items: Array<CartItemInput>): void {
 
 		let subtotal:number = this.updateSubtotal();
 		subtotal = this.checkNaN('subtotal', subtotal);
-		let subtotalEl:HTMLElement = document.getElementById('totalSubTotal');
+		let subtotalEl:HTMLElement | null = document.getElementById('totalSubTotal');
+
+		if (!subtotalEl) {
+			return
+		}
+
 		subtotalEl.innerHTML = '£' + subtotal.toFixed(2);
 	}
 
 	this.updateDOMShipping = function(shippingRegion:number): void {
 		let shippingTotal:number = this.updateShippingTotal();
 		shippingTotal = this.checkNaN('shippingTotal', shippingTotal);
-		let shippingTotalEl:HTMLElement = document.getElementById('totalShippingTotal');
+		let shippingTotalEl:HTMLElement | null = document.getElementById('totalShippingTotal');
+		
 		if(shippingTotalEl) {
 			shippingTotalEl.innerHTML = '£' + shippingTotal.toFixed(2);
 		}
@@ -298,7 +314,7 @@ function Cart(items: Array<CartItemInput>): void {
 	this.updateDOMTotal = function(): void {
 		let total:number = this.updateTotal();
 		total = this.checkNaN('total', total);
-		let totalTotalEl:HTMLElement = document.getElementById('totalTotal');
+		let totalTotalEl:HTMLElement | null = document.getElementById('totalTotal');
 		if(totalTotalEl) {
 			totalTotalEl.innerHTML = '£' + total.toFixed(2);
 		}
@@ -469,9 +485,9 @@ function Cart(items: Array<CartItemInput>): void {
 			shippingTotalInvalid = document.getElementById('shippingTotalInvalid'),
 			cartTotalInvalid = document.getElementById('cartTotalInvalid'),
 
-			shippingCartErrorActive = cartItemsInvalid.classList.contains('show-error'),
-			shippingTotalErrorActive = shippingTotalInvalid.classList.contains('show-error'),
-			cartTotalErrorActive = cartTotalInvalid.classList.contains('show-error'),
+			shippingCartErrorActive = cartItemsInvalid && cartItemsInvalid.classList.contains('show-error'),
+			shippingTotalErrorActive = shippingTotalInvalid && shippingTotalInvalid.classList.contains('show-error'),
+			cartTotalErrorActive = cartTotalInvalid && cartTotalInvalid.classList.contains('show-error'),
 
 			itemsQuantity:boolean = this.isItemsQuantityValid(),
 			subtotal:boolean = this.isSubtotalValid(),
@@ -481,9 +497,9 @@ function Cart(items: Array<CartItemInput>): void {
 
 		if (this.isCartValid()) {
 
-			cartItemsInvalid.classList.remove("show-error");
-			shippingTotalInvalid.classList.remove("show-error");
-			cartTotalInvalid.classList.remove("show-error");
+			cartItemsInvalid && cartItemsInvalid.classList.remove("show-error");
+			shippingTotalInvalid && shippingTotalInvalid.classList.remove("show-error");
+			cartTotalInvalid && cartTotalInvalid.classList.remove("show-error");
 
 			this.enablePaypalButton();
 
@@ -491,31 +507,31 @@ function Cart(items: Array<CartItemInput>): void {
 
 			if( !itemsQuantity || !subtotal ) {
 
-				if (!shippingCartErrorActive) {
+				if (!shippingCartErrorActive && cartItemsInvalid) {
 
 				cartItemsInvalid.classList.add("show-error");
 
 				}
 
-			} else if (shippingCartErrorActive) {
+			} else if (shippingCartErrorActive && cartItemsInvalid) {
 
 				cartItemsInvalid.classList.remove("show-error");
 			}
 
 			if( !shippingTotal || !shippingRegion ) {
 
-				if (!shippingTotalErrorActive) {
+				if (!shippingTotalErrorActive && shippingTotalInvalid) {
 
 					shippingTotalInvalid.classList.add("show-error");
 
 				}
 
-			} else if (shippingTotalErrorActive) {
+			} else if (shippingTotalErrorActive && shippingTotalInvalid) {
 
 				shippingTotalInvalid.classList.remove("show-error");
 			}
 
-			if( itemsQuantity && subtotal && shippingTotal && shippingRegion && !this.isTotalValid() ) {
+			if( itemsQuantity && subtotal && shippingTotal && shippingRegion && !this.isTotalValid() && cartTotalInvalid ) {
 
 				cartTotalInvalid.classList.add("show-error");
 
@@ -524,8 +540,13 @@ function Cart(items: Array<CartItemInput>): void {
 	}
 	this.enablePaypalButton = function():void {
 
-		let paypalButtom = document.getElementById('paynowButton'),
-			paypalButtonInactive = paypalButtom.classList.contains('disabled');
+		let paypalButtom = document.getElementById('paynowButton');
+
+		if (!paypalButtom) {
+			return
+		}
+
+			let paypalButtonInactive = paypalButtom.classList.contains('disabled');
 
 			this.paypalActions.enable();
 
@@ -549,18 +570,28 @@ function Cart(items: Array<CartItemInput>): void {
 
 	this.disablePaypalButton = function():void {
 
-		let paypalButtom = document.getElementById('paynowButton'),
-			paypalButtonInactive = paypalButtom.classList.contains('disabled');
+		let paypalButtom = document.getElementById('paynowButton');
 
-			this.paypalActions.disable();
+		if (!paypalButtom) {
+			return
+		}
 
-			if (!paypalButtonInactive) {
-				paypalButtom.classList.add("disabled");
-			}
+		let paypalButtonInactive = paypalButtom.classList.contains('disabled');
+
+		this.paypalActions.disable();
+
+		if (!paypalButtonInactive) {
+			paypalButtom.classList.add("disabled");
+		}
 	}
 
 	this.paymentSuccessful = function():void {
-		let el:HTMLElement = document.getElementById('paymentSuccessful');
+		let el:HTMLElement | null = document.getElementById('paymentSuccessful');
+
+		if (!el) {
+			return
+		}
+
 		el.classList.remove("disabled");
 	}
 };
